@@ -1,7 +1,6 @@
 ﻿using System.IO;
 using System.Linq;
 using System.Collections.Generic;
-using System.Reflection;
 using Verse;
 using RimWorld;
 using HarmonyLib;
@@ -9,9 +8,17 @@ using HarmonyLib;
 namespace NamesGalore
 {
     [StaticConstructorOnStartup]
+    public static class HarmonyPatcher
+    {
+        static HarmonyPatcher()
+        {
+            Harmony harmony = new Harmony("wit.namesgalorecontinued");
+            harmony.PatchAll();
+        }
+    }
     public static class NameInjector
     {
-        static FieldInfo FI_banks = AccessTools.Field(typeof(PawnNameDatabaseShuffled), "banks");
+        //static FieldInfo FI_banks = AccessTools.Field(typeof(PawnNameDatabaseShuffled), "banks");
         static int counter;
         static string curPath;
         static StreamReader stream;
@@ -21,15 +28,10 @@ namespace NamesGalore
             Log.Message("NamesGalore: Injecting Names");
             //Dictionary<PawnNameCategory,NameBank> banks = (Dictionary<PawnNameCategory,NameBank>)FI_banks.GetValue(null);
 
-            /*if (NamesGaloreMod.settings.removeDefaultNames)
-                banks[PawnNameCategory.HumanStandard] = new NameBank(PawnNameCategory.HumanStandard);*/
-
             string modPath = Path.Combine(NamesGaloreMod.settings.rootDir, "Languages");
             HashSet<string> supportedLanguages = new HashSet<string>();
             string[] languagePaths = Directory.GetDirectories(modPath);
-            for(int i = 0; i < languagePaths.Length; i++)
-                supportedLanguages.Add(Path.GetFileName(languagePaths[i]));
-            Log.Message($"{supportedLanguages.ToList<string>().First<string>()}");
+            for(int i = 0; i < languagePaths.Length; i++) supportedLanguages.Add(Path.GetFileName(languagePaths[i]));
 
             if (NamesGaloreMod.settings.international)
             {
@@ -40,28 +42,17 @@ namespace NamesGalore
             else
             {
                 string curLanguage = LanguageDatabase.activeLanguage.folderName;
-                Log.Message($"NamesGalore: Curent Lang {curLanguage}");
                 if (supportedLanguages.Contains(curLanguage))
                     LoadNamesForLangauge(curLanguage);
                 else
                     Log.Error(string.Format("NG_LanguageNotFound".Translate(), curLanguage));
             }
-#if DEBUG
-            //nameBank.ErrorCheck();
-#endif
         }
 
         // REFERENCE: from PawnNameDatabaseShuffled
         private static void LoadNamesForLangauge(string languageFolderName)
         {
-            if (NamesGaloreMod.settings.logging)
-                Log.Message($"Importing names for {languageFolderName} language.");
-
             string relativeLanguagePath = Path.Combine("Languages", languageFolderName);
-
-#if DEBUG
-            Log.Message($"Importing from {relativeLanguagePath}.");
-#endif
 
             AddNamesFromFile(PawnNameSlot.First, Gender.Male, "First_Male.txt", relativeLanguagePath, languageFolderName);
             AddNamesFromFile(PawnNameSlot.First, Gender.Female, "First_Female.txt", relativeLanguagePath, languageFolderName);
@@ -98,7 +89,6 @@ namespace NamesGalore
             return Path.Combine(Path.Combine(NamesGaloreMod.settings.rootDir, relativeLanguagePath), Path.Combine("Names", fileName));
         }
 
-        // NOTE: no longer any validation. Consider implementing such a `admin` feature.
         private static IEnumerable<string> LineFromFile_Fast(string filePath)
         {
             stream = new StreamReader(filePath);

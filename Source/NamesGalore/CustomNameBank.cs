@@ -1,7 +1,5 @@
-﻿using System.IO;
-using System.Linq;
+﻿using System.Linq;
 using System.Collections.Generic;
-using System.Reflection;
 using Verse;
 using RimWorld;
 using HarmonyLib;
@@ -38,16 +36,13 @@ namespace NamesGalore
         {
             ApplyPatches();
 
-            if (!NamesGaloreMod.settings.removeDefaultNames)
-            {
-                NewCultureGrouping("Default");
-                AddNamesFromFile(PawnNameSlot.First, Gender.Male, "First_Male");
-                AddNamesFromFile(PawnNameSlot.First, Gender.Female, "First_Female");
-                AddNamesFromFile(PawnNameSlot.Nick, Gender.Male, "Nick_Male");
-                AddNamesFromFile(PawnNameSlot.Nick, Gender.Female, "Nick_Female");
-                AddNamesFromFile(PawnNameSlot.Nick, Gender.None, "Nick_Unisex");
-                AddNamesFromFile(PawnNameSlot.Last, Gender.None, "Last");
-            }
+            NewCultureGrouping("Default");
+            AddNamesFromFile(PawnNameSlot.First, Gender.Male, "First_Male");
+            AddNamesFromFile(PawnNameSlot.First, Gender.Female, "First_Female");
+            AddNamesFromFile(PawnNameSlot.Nick, Gender.Male, "Nick_Male");
+            AddNamesFromFile(PawnNameSlot.Nick, Gender.Female, "Nick_Female");
+            AddNamesFromFile(PawnNameSlot.Nick, Gender.None, "Nick_Unisex");
+            AddNamesFromFile(PawnNameSlot.Last, Gender.None, "Last");
         }
         
         private static void ApplyPatches()
@@ -65,14 +60,14 @@ namespace NamesGalore
 
         public static bool GetNamePrefix(ref string __result, PawnNameSlot slot, Gender gender = Gender.None, bool checkIfAlreadyUsed = true)
         {
-            __result = CustomNameBank.GetName(slot, gender, checkIfAlreadyUsed);
+            __result = GetName(slot, gender, checkIfAlreadyUsed);
             return false;
         }
 
         public static void FixNicknames(string first, ref string nick, string last)
         {
-            if (nick == "")
-                nick = (Rand.Value < 0.5f) ? first : last;
+            //if (nick == "") nick = (Rand.Value < 0.5f) ? first : last;
+            nick = (Rand.Value < 0.85f) ? first : last;
         }
 
         private static void NewCultureGrouping(string culture)
@@ -115,12 +110,11 @@ namespace NamesGalore
             if (activeCultures.Contains(culture))
                 activeCultures.Remove(culture);
             if (activeCultures.Count == 0) // reset
-                activeCultures = names.Keys.ToList<string>();
+                activeCultures = names.Keys.ToList();
         }
 
         public static string GetName(PawnNameSlot slot, Gender gender = Gender.None, bool checkIfAlreadyUsed = true)
         {
-            //Log.Message($"GetName {slot}");
             // keeps first/nick/last together for a specific language
             if (slot == PawnNameSlot.First)
                 currentCulture = activeCultures.RandomElement<string>();
@@ -129,8 +123,7 @@ namespace NamesGalore
             int num = 0;
             if (list.Count == 0)
             {
-                // NOTE: some custom name sets have no nicknames... 
-                // TODO: get community help to pad out nicknames
+                // NOTE: some custom name sets have no nicknames...
                 if (slot == PawnNameSlot.Nick)
                     return "";
 
@@ -147,7 +140,7 @@ namespace NamesGalore
             string text;
             while (true)
             {
-                text = list.RandomElement<string>();
+                text = list.RandomElement();
                 if (checkIfAlreadyUsed && !NameUseChecker.NameWordIsUsed(text))
                 {
                     break;
@@ -160,8 +153,6 @@ namespace NamesGalore
                     return text;
                 }
             }
-            //Log.Message($"{currentCulture} {slot} {text}");
-
             return text;
         }
     }

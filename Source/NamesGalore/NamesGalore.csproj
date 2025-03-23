@@ -40,9 +40,6 @@
       <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\Ambrosia+ Factions\Source\Dependencies\0Harmony.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="1SettingsHelper">
-      <HintPath>..\..\..\SettingsHelper\Assemblies\1SettingsHelper.dll</HintPath>
-    </Reference>
     <Reference Include="Assembly-CSharp">
       <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\RimWorldWin64_Data\Managed\Assembly-CSharp.dll</HintPath>
       <Private>False</Private>
@@ -60,9 +57,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CustomNameBank.cs" />
-    <Compile Include="Patches.cs" />
     <Compile Include="NameInjector.cs" />
     <Compile Include="ModSettings.cs" />
+    <Compile Include="PawnBioAndNameGenerator_TryGetRandomUnusedSolidBioFor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
